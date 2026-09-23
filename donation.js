@@ -13,6 +13,28 @@ const readDonations = () => {
   }
 };
 const writeDonations = (items) => localStorage.setItem(storageKey, JSON.stringify(items.slice(-80)));
+const sharedSky = window.sharedDonationStars;
+const donationStore = window.createDonationStarStore(readDonations(), 80);
+const arrivalPulseUntil = new Map();
+const donationKey = (donation) => donation.clientId || donation.id;
+const visibleDonations = () => donationStore.values();
+
+function addOrReplaceDonation(donation, { pulse = false } = {}) {
+  const result = donationStore.addOrReplace(donation);
+  if (pulse && result.isNew) {
+    arrivalPulseUntil.set(donationKey(result.star), performance.now() + 1400);
+  }
+  writeDonations(visibleDonations());
+  return result;
+}
+
+function createClientId() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (token) => {
+    const value = Math.floor(Math.random() * 16);
+    return (token === 'x' ? value : (value & 0x3) | 0x8).toString(16);
+  });
+}
 
 const syncSummary = () => {
   const name = $('#donor-name').value.trim();
@@ -161,7 +183,7 @@ function nearestDonation(event) {
   const rect = canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
-  return readDonations().findLast((donation) => {
+  return visibleDonations().findLast((donation) => {
     const dx = donation.x * canvasWidth - x;
     const dy = donation.y * canvasHeight - y;
     return Math.hypot(dx, dy) < 16;
@@ -192,6 +214,7 @@ $('.create-order').addEventListener('click', (event) => {
   const canvasRect = canvas.getBoundingClientRect();
   const contribution = {
     id: createOrderId(),
+    clientId: createClientId(),
     amount: donationState.amount,
     project: donationState.project,
     method: donationState.method,
@@ -201,11 +224,17 @@ $('.create-order').addEventListener('click', (event) => {
     y: 0.1 + Math.random() * 0.42,
   };
   $('#order-id').textContent = contribution.id;
-  writeDonations([...readDonations(), contribution]);
+  addOrReplaceDonation(contribution);
   setStep('receipt');
   const startX = buttonRect.left + buttonRect.width / 2 - canvasRect.left;
   const startY = buttonRect.top + buttonRect.height / 2 - canvasRect.top;
   launchStar(contribution, startX, startY);
+  sharedSky.publish(contribution)
+    .then((remoteStar) => addOrReplaceDonation(remoteStar))
+    .catch((error) => {
+      console.warn('Shared sky is temporarily unavailable', error);
+      window.showToast('共享星空暂时不可用，这颗星已保存在当前设备。');
+    });
 });
 
 $('.new-donation').addEventListener('click', () => {
@@ -228,11 +257,19 @@ function animateSky(time) {
     drawStar(star.x * canvasWidth, star.y * canvasHeight, star.r, `rgba(246,248,239,${alpha})`);
   });
 
-  const donations = readDonations();
+  const donations = visibleDonations();
   donations.forEach((donation) => {
-    if (launch?.donation.id === donation.id) return;
-    const isFocused = donation.id === (pinnedStar?.id || hoveredStar?.id);
-    drawDiamondStar(donation.x * canvasWidth, donation.y * canvasHeight, isFocused ? 4.3 : 3.1, isFocused);
+    const key = donationKey(donation);
+    if (launch && donationKey(launch.donation) === key) return;
+    const isFocused = key === donationKey(pinnedStar || {}) || key === donationKey(hoveredStar || {});
+    const isPulsing = (arrivalPulseUntil.get(key) || 0) > time;
+    if (!isPulsing) arrivalPulseUntil.delete(key);
+    drawDiamondStar(
+      donation.x * canvasWidth,
+      donation.y * canvasHeight,
+      isFocused || isPulsing ? 4.3 : 3.1,
+      isFocused || isPulsing,
+    );
   });
 
   if (launch) {
@@ -257,8 +294,8 @@ function animateSky(time) {
     if (progress === 1) {
       const arrived = launch.donation;
       launch = null;
-      pinnedStar = arrived;
-      positionTooltip(arrived);
+      pinnedStar = visibleDonations().find((donation) => donationKey(donation) === donationKey(arrived)) || arrived;
+      positionTooltip(pinnedStar);
       window.showToast('一颗新的微光，已经飞入远山星空。');
     }
   }
@@ -271,3 +308,8 @@ new ResizeObserver(resizeSky).observe(canvas);
 resizeSky();
 requestAnimationFrame(animateSky);
 syncSummary();
+
+sharedSky.subscribe((star) => addOrReplaceDonation(star, { pulse: true }));
+sharedSky.loadLatest()
+  .then((stars) => stars.forEach((star) => addOrReplaceDonation(star)))
+  .catch((error) => console.warn('Unable to load the shared sky', error));
