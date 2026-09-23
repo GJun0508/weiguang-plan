@@ -1,0 +1,322 @@
+:root {
+  --ink:#12110f;
+  --paper:#f0ebe1;
+  --cinnabar:#c63d2f;
+  --moss: #40594b;
+  --mist: #cbd4cd;
+  --stone: #8a8278;
+  --black: var(--ink);
+  --white: var(--paper);
+  --acid: var(--cinnabar);
+  --soft: #211e1a;
+  --ash: #aaa196;
+  --line: rgba(240, 235, 225, 0.2);
+}
+
+html {
+  background: var(--ink);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+::selection {
+  background: var(--cinnabar);
+  color: #fff;
+}
+
+.grain {
+  opacity: 0.14;
+  mix-blend-mode: soft-light;
+}
+
+.header {
+  border-color: rgba(240, 235, 225, 0.18);
+  background: linear-gradient(180deg, rgba(18, 17, 15, 0.74), transparent);
+  backdrop-filter: blur(4px);
+}
+
+.wordmark span,
+.hero-content h1 span,
+.manifesto-line em,
+.ledger-copy em,
+.closing-copy em {
+  color: var(--cinnabar);
+}
+
+.pulse,
+.online i {
+  background: var(--cinnabar);
+  box-shadow: 0 0 0 4px rgba(198, 61, 47, 0.16);
+}
+
+.menu {
+  background: var(--cinnabar);
+  color: #fff;
+}
+
+.menu a,
+.nav-support {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.hero::after {
+  background: linear-gradient(90deg, rgba(18, 17, 15, 0.78) 0%, rgba(18, 17, 15, 0.2) 52%, rgba(18, 17, 15, 0.54) 100%);
+}
+
+.hero-shot img {
+  filter: saturate(0.78) contrast(1.07) brightness(0.88);
+  animation: documentary-drift 14s ease-in-out infinite alternate;
+}
+
+.hero-shot:nth-child(2) img {
+  animation-direction: alternate-reverse;
+}
+
+.hero-meta,
+.hero-explore,
+.hero-side {
+  border-color: rgba(240, 235, 225, 0.28);
+}
+
+.hero-explore:hover,
+.outline-btn:hover {
+  background: var(--cinnabar);
+  border-color: var(--cinnabar);
+  color: #fff;
+}
+
+.manifesto,
+.closing {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.manifesto-top,
+.manifesto-foot,
+.contact-links a {
+  border-color: rgba(18, 17, 15, 0.2);
+}
+
+.manifesto-line em {
+  text-decoration-color: rgba(198, 61, 47, 0.32);
+}
+
+.underlink,
+.contact-links a:hover strong {
+  color: var(--cinnabar);
+}
+
+.image-break::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 46%, rgba(18, 17, 15, 0.72));
+}
+
+.image-break img,
+.project-detail img,
+.closing-image img {
+  filter: saturate(0.78) contrast(1.04);
+}
+
+.image-caption {
+  z-index: 2;
+}
+
+.work {
+  background: var(--ink);
+}
+
+.project {
+  border-color: rgba(240, 235, 225, 0.18);
+}
+
+.project:hover,
+.project.active {
+  border-color: var(--cinnabar);
+}
+
+.project.active .project-num,
+.project.active .project-status b,
+.project-detail a {
+  color: #ea7f72;
+}
+
+.project-open {
+  border-color: rgba(240, 235, 225, 0.34);
+}
+
+.project-open:hover,
+.project.active .project-open {
+  color: #fff;
+  background: var(--cinnabar);
+  border-color: var(--cinnabar);
+}
+
+.numbers {
+  background: var(--cinnabar);
+  color: #fff;
+}
+
+.numbers-head,
+.number-grid > div {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.number-grid strong {
+  color: #fff;
+}
+
+.ledger {
+  background: var(--moss);
+  color: var(--paper);
+}
+
+.ledger-panel {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 22px 22px 0 rgba(18, 17, 15, 0.24);
+}
+
+.panel-top,
+.panel-bottom,
+.panel-main,
+.panel-chart {
+  border-color: rgba(18, 17, 15, 0.18);
+}
+
+.panel-chart i {
+  background: var(--cinnabar);
+}
+
+.panel-main strong,
+.panel-bottom button {
+  color: var(--cinnabar);
+}
+
+.closing-image {
+  background: #d6d0c6;
+}
+
+.closing-image img {
+  object-position: center 34%;
+}
+
+.support-btn {
+  background: var(--cinnabar);
+  color: #fff;
+}
+
+.support-btn:hover {
+  background: var(--ink);
+}
+
+footer {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: rgba(240, 235, 225, 0.16);
+}
+
+/* Donation experience: real night sky, white diamond stars, cinnabar controls. */
+.support-modal {
+  background: #020306;
+}
+
+.donation-scene {
+  background-image:
+    linear-gradient(90deg, rgba(2, 3, 8, 0.88) 0%, rgba(2, 3, 8, 0.34) 42%, rgba(2, 3, 8, 0.08) 70%, rgba(2, 3, 8, 0.26) 100%),
+    linear-gradient(0deg, rgba(1, 2, 5, 0.72) 0%, transparent 52%),
+    url("assets/night-sky.jpg");
+  background-position: center center;
+  filter: saturate(0.82) brightness(0.62) contrast(1.12);
+}
+
+.donation-form-pane {
+  background-image:
+    linear-gradient(90deg, rgba(4, 5, 10, 0.9), rgba(4, 5, 10, 0.7)),
+    url("assets/night-sky.jpg");
+  background-size: cover;
+  background-position: center top;
+}
+
+.flow-steps .active,
+.test-badge,
+.sky-count,
+.star-tooltip small,
+.lock-icon,
+.order-total strong,
+.test-notice b {
+  color: #ffb1a8;
+}
+
+.project-choice input,
+.donor-options input[type="checkbox"] {
+  accent-color: var(--cinnabar);
+}
+
+.amount-grid button:hover,
+.amount-grid button.selected,
+.next-step,
+.create-order,
+.receipt-mark {
+  background: var(--cinnabar);
+  border-color: var(--cinnabar);
+  color: #fff;
+}
+
+.payment-method.selected {
+  border-color: var(--cinnabar);
+  background: rgba(198, 61, 47, 0.13);
+}
+
+.payment-method.selected i {
+  color: #ffb1a8;
+}
+
+.test-notice {
+  border-left-color: var(--cinnabar);
+}
+
+.star-tooltip {
+  border-color: rgba(198, 61, 47, 0.64);
+}
+
+@keyframes documentary-drift {
+  from { transform: scale(1.01) translate3d(0, 0, 0); }
+  to { transform: scale(1.07) translate3d(-1.2%, -0.8%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-shot img {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .header {
+    background: rgba(18, 17, 15, 0.58);
+  }
+
+  .donation-scene {
+    background-position: 60% top;
+  }
+
+  .donation-form-pane {
+    background-image:
+      linear-gradient(rgba(4, 5, 10, 0.74), rgba(4, 5, 10, 0.82)),
+      url("assets/night-sky.jpg");
+    background-size: auto 100svh;
+    background-position: 58% top;
+    background-attachment: fixed;
+  }
+
+  .ledger-panel {
+    box-shadow: 10px 10px 0 rgba(18, 17, 15, 0.24);
+  }
+}
