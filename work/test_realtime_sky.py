@@ -1,8 +1,22 @@
 import pathlib
 import unittest
+from html.parser import HTMLParser
 
 
 ROOT = pathlib.Path(__file__).parents[1]
+
+
+class ScriptCollector(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.sources = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag != "script":
+            return
+        source = dict(attrs).get("src")
+        if source:
+            self.sources.append(source)
 
 
 class RealtimeSkyContractTests(unittest.TestCase):
@@ -22,6 +36,14 @@ class RealtimeSkyContractTests(unittest.TestCase):
         config = config_path.read_text().lower()
         self.assertIn("publishablekey", config)
         self.assertNotIn("service_role", config)
+
+    def test_page_loads_shared_client_before_donation_logic(self):
+        parser = ScriptCollector()
+        parser.feed((ROOT / "index.html").read_text())
+        self.assertIn("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2", parser.sources)
+        self.assertIn("supabase-config.js", parser.sources)
+        self.assertIn("shared-stars.js", parser.sources)
+        self.assertLess(parser.sources.index("shared-stars.js"), parser.sources.index("donation.js"))
 
 
 if __name__ == "__main__":
