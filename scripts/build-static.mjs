@@ -7,6 +7,9 @@ const files = [
   "theme.css",
   "donation.css",
   "script.js",
+  "supabase-config.js",
+  "shared-stars.js",
+  "star-store.js",
   "donation.js",
 ];
 

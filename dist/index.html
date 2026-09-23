@@ -75,13 +75,17 @@
           </div>
 
           <div class="donation-step" data-step="receipt">
-            <div class="receipt-mark">✓</div><p class="flow-kicker">DONATION RECORDED</p><h3>感谢你，<br />让行动继续发生。</h3><p class="receipt-copy">这份测试捐赠已记录在当前浏览器。正式上线后，这里会展示来自微信支付或支付宝的真实支付凭证。</p><div class="receipt-actions"><button class="save-receipt">保存电子凭证</button><button class="new-donation">再支持一个项目 →</button></div>
+            <div class="receipt-mark">✓</div><p class="flow-kicker">DONATION RECORDED</p><h3>感谢你，<br />让行动继续发生。</h3><p class="receipt-copy">这份测试捐赠会同步到共享星空，让每一位访客都能看见。当前仍是演示环境，不会调用真实支付或扣款。</p><div class="receipt-actions"><button class="save-receipt">保存电子凭证</button><button class="new-donation">再支持一个项目 →</button></div>
           </div>
         </div>
         <aside class="order-pane"><div class="order-pane-top"><span>捐赠订单</span><span class="test-badge">TEST MODE</span></div><div class="order-number"><small>订单编号</small><strong id="order-id">待生成</strong></div><div class="order-line"><span>支持项目</span><b id="summary-project">读到世界 · 乡村阅读</b></div><div class="order-line"><span>捐赠金额</span><b id="summary-amount">¥ 100</b></div><div class="order-line"><span>展示方式</span><b id="summary-name">实名支持</b></div><div class="order-total"><span>合计</span><strong id="summary-total">¥ 100</strong></div><div class="order-foot"><span class="lock-icon">⌁</span><p>正式收款会由已认证的第三方支付平台完成。我们不会在此页面保存银行卡或支付密码。</p></div></aside>
       </section>
     </div><div class="toast" role="status"></div>
     <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="shared-stars.js"></script>
+    <script src="star-store.js"></script>
     <script src="donation.js"></script>
   </body>
 </html>

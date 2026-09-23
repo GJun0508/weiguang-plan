@@ -43,7 +43,14 @@ class RealtimeSkyContractTests(unittest.TestCase):
         self.assertIn("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2", parser.sources)
         self.assertIn("supabase-config.js", parser.sources)
         self.assertIn("shared-stars.js", parser.sources)
+        self.assertIn("star-store.js", parser.sources)
+        self.assertLess(parser.sources.index("star-store.js"), parser.sources.index("donation.js"))
         self.assertLess(parser.sources.index("shared-stars.js"), parser.sources.index("donation.js"))
+
+    def test_receipt_explains_shared_sky_without_claiming_real_payment(self):
+        html = (ROOT / "index.html").read_text()
+        self.assertIn("这份测试捐赠会同步到共享星空", html)
+        self.assertIn("不会调用真实支付或扣款", html)
 
 
 if __name__ == "__main__":
