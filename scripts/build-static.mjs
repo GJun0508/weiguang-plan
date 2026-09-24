@@ -6,11 +6,23 @@ const files = [
   "styles.css",
   "theme.css",
   "donation.css",
+  "auth.css",
   "script.js",
   "supabase-config.js",
+  "supabase-client.js",
+  "auth.js",
+  "projects.js",
+  "project-detail.js",
+  "project-follows.js",
+  "ledger.js",
+  "admin.js",
   "shared-stars.js",
   "star-store.js",
   "donation.js",
+  "auth.html",
+  "account.html",
+  "project.html",
+  "admin.html",
 ];
 
 rmSync(output, { recursive: true, force: true });

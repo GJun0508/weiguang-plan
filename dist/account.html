@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>我的账号 / 微光计划</title>
+    <link rel="stylesheet" href="theme.css" />
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body class="account-page">
+    <main class="account-shell">
+      <header class="account-head"><div><a class="auth-back" href="index.html">← 微光计划</a><h1>我的现场。</h1></div><button class="outline-btn" id="sign-out">退出登录</button></header>
+      <div class="account-grid"><section><p class="overline">PROFILE / YOUR PRESENCE</p><form class="auth-form" id="profile-form"><label>称呼<input name="display_name" maxlength="40" required /></label><label>关于你<textarea name="bio" rows="5" maxlength="240"></textarea></label><label><input name="public_name" type="checkbox" /> 在公开项目动态中展示我的称呼</label><button type="submit">保存资料</button><p class="auth-status" id="profile-status" role="status"></p></form></section><aside><p class="overline">FOLLOWING / 关注中</p><p id="following-copy">登录后，你可以在项目页关注想持续了解的行动。</p><div id="following-list"></div></aside></div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="auth.js"></script>
+    <script>
+      (async () => {
+        const user = await window.weiguangAuth.requireUser();
+        if (!user) return;
+        const form = document.querySelector('#profile-form');
+        const status = document.querySelector('#profile-status');
+        const { data } = await window.weiguangAuth.getProfile(user.id);
+        if (data) { form.elements.display_name.value = data.display_name || ''; form.elements.bio.value = data.bio || ''; form.elements.public_name.checked = Boolean(data.public_name); }
+        form.addEventListener('submit', async (event) => { event.preventDefault(); const values = Object.fromEntries(new FormData(form)); const result = await window.weiguangAuth.updateProfile(user.id, values); status.textContent = result.error ? window.weiguangAuth.errorMessage(result.error) : '资料已保存。'; });
+        document.querySelector('#sign-out').addEventListener('click', () => window.weiguangAuth.signOut());
+      })();
+    </script>
+  </body>
+</html>

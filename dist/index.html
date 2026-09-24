@@ -16,7 +16,7 @@
   <body>
     <div class="grain"></div>
     <header class="header"><a href="#top" class="wordmark">WEI<span>GUANG</span></a><div class="header-center"><span>公益的另一种叙事</span><span class="pulse"></span><span>2024—NOW</span></div><button class="menu-toggle" aria-label="打开导航"><i></i><i></i></button></header>
-    <nav class="menu"><a href="#idea">关于我们 <span>01</span></a><a href="#work">正在发生 <span>02</span></a><a href="#ledger">公开现场 <span>03</span></a><a href="#contact">联系 <span>04</span></a><button class="nav-support js-support">支持行动 <b>↗</b></button></nav>
+    <nav class="menu"><a href="#idea">关于我们 <span>01</span></a><a href="#work">正在发生 <span>02</span></a><a href="#ledger">公开现场 <span>03</span></a><a href="#contact">联系 <span>04</span></a><a href="auth.html" data-auth-link>登录 <span>05</span></a><button class="nav-support js-support">支持行动 <b>↗</b></button></nav>
 
     <main id="top">
       <section class="hero">
@@ -34,7 +34,7 @@
 
       <section class="image-break" aria-label="社区工作现场"><img src="assets/china-community.jpg" alt="中国乡村孩子们在户外玩滚轮游戏" /><div class="image-caption"><span>FIELD NOTE / 04</span><span>一份支持，抵达之后</span></div></section>
 
-      <section class="work" id="work"><div class="section-intro"><span>02 / WORK IN PROGRESS</span><h2>每一项行动，<br />都是一条具体的路。</h2><p>点击项目，进入它此刻的现场。</p></div><div class="project-list">
+      <section class="work" id="work"><div class="section-intro"><span>02 / WORK IN PROGRESS</span><h2>每一项行动，<br />都是一条具体的路。</h2><p>点击项目，进入它此刻的现场。</p></div><div class="project-list dynamic-project-list" data-dynamic-projects hidden></div><div class="project-list" data-static-projects>
         <article class="project active"><div class="project-num">01</div><div class="project-title"><h3>读到世界</h3><p>云南 · 乡村阅读</p></div><div class="project-status"><span>进度</span><b>78%</b></div><button class="project-open" aria-label="查看读到世界项目">↗</button><div class="project-detail"><img src="assets/china-reading.jpg" alt="江西乡村里的中国孩子" /><p>6 间闲置教室，正在被改造成孩子们每天都能抵达的阅读室。第一批 2,400 册图书已上架。</p><a href="#ledger">查看本期项目记录 →</a></div></article>
         <article class="project"><div class="project-num">02</div><div class="project-title"><h3>水往低处流</h3><p>河北 · 清洁饮水</p></div><div class="project-status"><span>进度</span><b>100%</b></div><button class="project-open" aria-label="查看清洁饮水项目">↗</button><div class="project-detail"><img src="assets/china-water-village.jpg" alt="安徽宏村的水岸和村落" /><p>18 个村庄的雨水收集系统完成修复。水源不再只是等待被运来的物资，而成为社区能自己维护的基础设施。</p><a href="#ledger">查看本期项目记录 →</a></div></article>
         <article class="project"><div class="project-num">03</div><div class="project-title"><h3>手上有光</h3><p>贵州 · 女性生计</p></div><div class="project-status"><span>进度</span><b>42%</b></div><button class="project-open" aria-label="查看女性生计项目">↗</button><div class="project-detail"><img src="assets/china-artisan.jpg" alt="浙江传统作坊里的中国手艺人" /><p>30 位女性正在学习把熟悉的手艺变成稳定的收入。我们提供工具、渠道和定价支持，选择权留给她们自己。</p><a href="#ledger">查看本期项目记录 →</a></div></article>
@@ -42,7 +42,7 @@
 
       <section class="numbers"><div class="numbers-head"><span>03 / WHAT REMAINS</span><span>截至 2026.09 / 公开数据</span></div><div class="number-grid"><div><strong data-number="42">00</strong><span>个长期共建社区</span></div><div><strong data-number="1860">0000</strong><span>个家庭获得持续支持</span></div><div><strong data-number="178">000</strong><span>位在地工作伙伴</span></div><div><strong data-number="96">00</strong><span>% 项目按期完成</span></div></div></section>
 
-      <section class="ledger" id="ledger"><div class="ledger-copy"><span>04 / OPEN FIELD LEDGER</span><h2>你不必只相信<br />我们的<em>讲述。</em></h2><p>每笔支持的去向、每个项目的阶段和每一次复盘，都留在公开账本中。因为信任不是一种姿态，而是经得起回看的过程。</p><button class="outline-btn js-ledger">进入公开账本 <b>↗</b></button></div><div class="ledger-panel"><div class="panel-top"><span>2026 / Q3</span><span class="online"><i></i> LIVE</span></div><div class="panel-main"><span>本期用于现场</span><strong>¥ 379,236</strong><p>占本期可用资金的 78%</p></div><div class="panel-chart"><div><i style="height:78%"></i><span>现场</span></div><div><i style="height:14%"></i><span>伙伴</span></div><div><i style="height:8%"></i><span>运营</span></div></div><div class="panel-bottom"><span>最后更新：09.23</span><button class="js-ledger">查看明细 →</button></div></div></section>
+      <section class="ledger" id="ledger" data-live-ledger><div class="ledger-copy"><span>04 / OPEN FIELD LEDGER</span><h2>你不必只相信<br />我们的<em>讲述。</em></h2><p>每笔支持的去向、每个项目的阶段和每一次复盘，都留在公开账本中。因为信任不是一种姿态，而是经得起回看的过程。</p><button class="outline-btn js-ledger">进入公开账本 <b>↗</b></button></div><div class="ledger-panel"><div class="panel-top"><span>公开账本</span><span class="online"><i></i> LIVE</span></div><div class="panel-main"><span>已公开记录合计</span><strong data-ledger-total>等待数据</strong><p>仅显示已发布的账本记录</p></div><div class="panel-chart"><div><i style="height:78%"></i><span>现场</span></div><div><i style="height:14%"></i><span>伙伴</span></div><div><i style="height:8%"></i><span>运营</span></div></div><ul data-ledger-list></ul><div class="panel-bottom"><span>数据由后台实时读取</span><button class="js-ledger">查看明细 →</button></div></div></section>
 
       <section class="closing" id="contact"><div class="closing-image"><img src="assets/china-elder.jpg" alt="四川宜宾乡间微笑的中国老人" /></div><div class="closing-copy"><span>05 / STAY IN THE WORK</span><h2>走得慢一点，<br />但一起走<em>远一点。</em></h2><p>想了解一个项目，参与一次行动，或只是聊聊你也在意的事，都欢迎找到我们。</p><div class="contact-links"><a href="weixin://dl/chat?13923626543"><small>WECHAT</small><strong>13923626543</strong><b>↗</b></a><a href="mailto:junlinkun@icloud.com"><small>EMAIL</small><strong>junlinkun@icloud.com</strong><b>↗</b></a></div><button class="support-btn js-support">支持一段长期的行动 <span>↗</span></button></div></section>
     </main>
@@ -84,8 +84,13 @@
     <script src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="auth.js"></script>
+    <script src="projects.js"></script>
+    <script src="ledger.js"></script>
     <script src="shared-stars.js"></script>
     <script src="star-store.js"></script>
     <script src="donation.js"></script>
+    <script>if (new URLSearchParams(window.location.search).get('support') === '1') setTimeout(() => document.querySelector('.js-support')?.click(), 120);</script>
   </body>
 </html>
