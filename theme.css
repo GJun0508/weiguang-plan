@@ -320,3 +320,13 @@ footer {
     box-shadow: 10px 10px 0 rgba(18, 17, 15, 0.24);
   }
 }
+.dynamic-project-list[hidden] { display: none; }
+.project-detail-page { margin-top: 48px; }
+.project-detail-page h1 { max-width: 900px; margin: 10px 0; font-size: clamp(48px, 10vw, 140px); line-height: .94; }
+.project-detail-lede { color: rgba(244, 240, 232, .68); font-size: 20px; }
+.project-detail-cover { display: block; width: 100%; max-height: 620px; object-fit: cover; margin: 42px 0; }
+.project-detail-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; padding: 20px 0; border-top: 1px solid rgba(244, 240, 232, .2); border-bottom: 1px solid rgba(244, 240, 232, .2); }
+.project-detail-meta span { display: grid; gap: 5px; color: rgba(244, 240, 232, .6); font-size: 13px; }.project-detail-meta b { color: #f4f0e8; font-size: 22px; }
+.project-detail-copy { max-width: 760px; margin: 48px 0; font-size: clamp(20px, 3vw, 32px); line-height: 1.65; }
+.project-updates { border-top: 1px solid rgba(244, 240, 232, .2); padding-top: 28px; }.project-updates > div { display: grid; gap: 20px; }.project-updates article { border-bottom: 1px solid rgba(244, 240, 232, .12); padding: 12px 0 24px; }.project-updates h3 { margin: 8px 0; }
+.admin-section { display: grid; grid-template-columns: minmax(280px, .8fr) minmax(0, 1.2fr); gap: 48px; margin-top: 40px; }.admin-form { margin-top: 0; }.admin-form h2, .admin-list h2 { margin-top: 0; }.table-wrap { overflow-x: auto; } table { width: 100%; border-collapse: collapse; } th, td { border-bottom: 1px solid rgba(244,240,232,.15); padding: 14px 10px; text-align: left; white-space: nowrap; } td button { border: 0; background: transparent; color: #f0b4a9; cursor: pointer; } @media (max-width: 820px) { .admin-section { grid-template-columns: 1fr; } }
