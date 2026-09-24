@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>登录 / 微光计划</title>
+    <link rel="stylesheet" href="theme.css" />
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body class="auth-page">
+    <main class="auth-shell">
+      <a class="auth-back" href="index.html">← 回到微光计划</a>
+      <p class="overline">WEIGUANG / MEMBER ACCESS</p>
+      <h1 id="auth-title">回到现场。</h1>
+      <p id="auth-copy">登录后可以关注项目、保存你的现场线索，并参与长期行动。</p>
+      <form class="auth-form" id="auth-form">
+        <label data-register-only hidden>称呼<input name="display_name" maxlength="40" autocomplete="name" /></label>
+        <label>邮箱<input name="email" type="email" required autocomplete="email" /></label>
+        <label>密码<input name="password" type="password" minlength="6" required autocomplete="current-password" /></label>
+        <label data-register-only hidden>确认密码<input name="password_confirm" type="password" minlength="6" autocomplete="new-password" /></label>
+        <button type="submit" id="auth-submit">登录</button>
+        <p class="auth-status" id="auth-status" role="status" aria-live="polite"></p>
+      </form>
+      <div class="auth-actions"><a href="#" id="auth-switch">注册一个账号</a><a href="#" id="auth-reset">忘记密码</a></div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="auth.js"></script>
+    <script>
+      (() => {
+        const params = new URLSearchParams(window.location.search);
+        let mode = params.get('mode') === 'register' ? 'register' : 'login';
+        const form = document.querySelector('#auth-form');
+        const title = document.querySelector('#auth-title');
+        const copy = document.querySelector('#auth-copy');
+        const submit = document.querySelector('#auth-submit');
+        const status = document.querySelector('#auth-status');
+        const registerFields = [...document.querySelectorAll('[data-register-only]')];
+        const setMode = (next) => {
+          mode = next;
+          const register = mode === 'register';
+          title.textContent = register ? '加入同行者。' : '回到现场。';
+          copy.textContent = register ? '创建一个账号，留下你持续关注的项目。' : '登录后可以关注项目、保存你的现场线索，并参与长期行动。';
+          submit.textContent = register ? '创建账号' : '登录';
+          registerFields.forEach((field) => { field.hidden = !register; field.querySelector('input').required = register; });
+          document.querySelector('#auth-switch').textContent = register ? '已有账号，去登录' : '注册一个账号';
+        };
+        document.querySelector('#auth-switch').addEventListener('click', (event) => { event.preventDefault(); setMode(mode === 'register' ? 'login' : 'register'); });
+        document.querySelector('#auth-reset').addEventListener('click', async (event) => {
+          event.preventDefault();
+          const email = form.elements.email.value.trim();
+          if (!email || !window.weiguangSupabase) { status.textContent = '请先填写邮箱。'; return; }
+          const { error } = await window.weiguangSupabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}${window.location.pathname}` });
+          status.textContent = error ? window.weiguangAuth.errorMessage(error) : '重置链接已发送，请检查邮箱。';
+        });
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          status.textContent = '';
+          const values = Object.fromEntries(new FormData(form));
+          if (!window.weiguangSupabase) { status.textContent = '认证服务尚未配置。'; return; }
+          if (mode === 'register' && values.password !== values.password_confirm) { status.textContent = '两次输入的密码不一致。'; return; }
+          const result = mode === 'register'
+            ? await window.weiguangSupabase.auth.signUp({ email: values.email, password: values.password, options: { data: { display_name: values.display_name || '同行者' }, emailRedirectTo: `${window.location.origin}/account.html` } })
+            : await window.weiguangSupabase.auth.signInWithPassword({ email: values.email, password: values.password });
+          if (result.error) { status.textContent = window.weiguangAuth.errorMessage(result.error); return; }
+          if (mode === 'register' && !result.data.session) { status.textContent = '注册成功，请先完成邮箱确认。'; return; }
+          window.location.href = params.get('next') || 'account.html';
+        });
+        setMode(mode);
+      })();
+    </script>
+  </body>
+</html>
