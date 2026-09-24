@@ -11,6 +11,7 @@ const files = [
   "supabase-config.js",
   "supabase-client.js",
   "auth.js",
+  "site-auth-gate.js",
   "projects.js",
   "project-detail.js",
   "project-follows.js",
