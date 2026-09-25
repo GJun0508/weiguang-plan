@@ -9,7 +9,7 @@ class SkyDonationDesignTests(unittest.TestCase):
     def test_donation_uses_fullscreen_landscape_scene(self):
         css = (ROOT / "donation.css").read_text()
         self.assertIn(".donation-scene", css)
-        self.assertIn("photo-1519681393784-d120267933ba", css)
+        self.assertIn('url("assets/night-sky.jpg")', css)
         self.assertIn("grid-template-columns:minmax(360px,440px) 1fr", css)
 
     def test_sky_stars_have_hover_and_click_details(self):

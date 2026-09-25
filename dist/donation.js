@@ -117,17 +117,34 @@ sky.innerHTML = '<canvas class="star-canvas" aria-label="捐赠星空"></canvas>
 orderPane.querySelector('.order-pane-top').after(sky);
 
 const canvas = $('.star-canvas', sky);
-const context = canvas.getContext('2d');
+const realContext = canvas.getContext('2d');
+const context = realContext || {
+  clearRect() {}, setTransform() {}, save() {}, restore() {}, translate() {}, rotate() {},
+  fillRect() {}, beginPath() {}, arc() {}, fill() {}, moveTo() {}, lineTo() {}, stroke() {},
+  set fillStyle(value) {}, set strokeStyle(value) {}, set lineWidth(value) {}, set shadowBlur(value) {}, set shadowColor(value) {},
+};
+const motionConfig = {
+  starCountDesktop: 180,
+  starCountMobile: 100,
+  meteorIntervalMin: 4000,
+  meteorIntervalMax: 12000,
+  meteorDurationMin: 450,
+  meteorDurationMax: 900,
+  reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+};
 const countLabel = $('.sky-count', sky);
 const tooltip = $('.star-tooltip', sky);
-const staticStars = Array.from({ length: 115 }, () => ({
+const staticStars = Array.from({ length: motionConfig.starCountDesktop }, () => ({
   x: Math.random(),
   y: Math.random() * 0.72,
   r: Math.random() * 1.05 + 0.2,
   alpha: Math.random() * 0.55 + 0.14,
+  drift: Math.random() * 0.7 + 0.15,
+  layer: Math.random(),
 }));
 const meteors = [];
 let nextMeteorAt = 0;
+let animationFrame = 0;
 let canvasWidth = 1;
 let canvasHeight = 1;
 let launch = null;
@@ -169,14 +186,15 @@ function drawDiamondStar(x, y, radius, focused = false) {
 }
 
 function spawnMeteor(time) {
+  if (motionConfig.reducedMotion || meteors.length >= 2) return;
   meteors.push({
     startedAt: time,
-    duration: 850 + Math.random() * 750,
+    duration: motionConfig.meteorDurationMin + Math.random() * (motionConfig.meteorDurationMax - motionConfig.meteorDurationMin),
     x: canvasWidth * (0.72 + Math.random() * 0.42),
     y: canvasHeight * (0.04 + Math.random() * 0.46),
     length: 70 + Math.random() * 115,
   });
-  nextMeteorAt = time + 2600 + Math.random() * 5200;
+  nextMeteorAt = time + motionConfig.meteorIntervalMin + Math.random() * (motionConfig.meteorIntervalMax - motionConfig.meteorIntervalMin);
 }
 
 function drawMeteor(meteor, time) {
@@ -187,17 +205,19 @@ function drawMeteor(meteor, time) {
   const tailX = x + meteor.length * 0.9;
   const tailY = y - meteor.length * 0.4;
   const fade = Math.sin(Math.min(progress, 1) * Math.PI);
-  const gradient = context.createLinearGradient(tailX, tailY, x, y);
-  gradient.addColorStop(0, 'rgba(255,255,255,0)');
-  gradient.addColorStop(0.72, `rgba(211,230,255,${0.25 * fade})`);
-  gradient.addColorStop(1, `rgba(255,255,255,${0.95 * fade})`);
   context.save();
-  context.strokeStyle = gradient;
+  context.strokeStyle = `rgba(226,237,255,${0.9 * fade})`;
   context.lineWidth = 1.5 + fade;
   context.shadowBlur = 12;
   context.shadowColor = `rgba(220,238,255,${0.8 * fade})`;
   context.beginPath();
   context.moveTo(tailX, tailY);
+  context.lineTo(x, y);
+  context.stroke();
+  context.strokeStyle = `rgba(255,255,255,${0.8 * fade})`;
+  context.lineWidth = 1;
+  context.beginPath();
+  context.moveTo(x + meteor.length * .22, y - meteor.length * .1);
   context.lineTo(x, y);
   context.stroke();
   context.restore();
@@ -296,8 +316,11 @@ function animateSky(time) {
     if (time - meteor.startedAt > meteor.duration) meteors.splice(index, 1);
   }
   staticStars.forEach((star, index) => {
-    const alpha = star.alpha + 0.12 * Math.sin(time / 850 + index * 0.7);
-    drawStar(star.x * canvasWidth, star.y * canvasHeight, star.r, `rgba(246,248,239,${alpha})`);
+    const driftX = Math.sin(time / 12000 * star.drift + index) * canvasWidth * 0.006 * star.layer;
+    const driftY = Math.cos(time / 15000 * star.drift + index * .4) * canvasHeight * 0.003 * star.layer;
+    const alpha = star.alpha + 0.1 * Math.sin(time / 850 * star.drift + index * 0.7);
+    const tint = star.layer > .76 ? '224,232,255' : star.layer > .44 ? '246,248,239' : '221,214,246';
+    drawStar(star.x * canvasWidth + driftX, star.y * canvasHeight + driftY, star.r * (star.layer > .76 ? 1.25 : 1), `rgba(${tint},${alpha})`);
   });
 
   const donations = visibleDonations();
@@ -344,13 +367,43 @@ function animateSky(time) {
   }
 
   countLabel.textContent = `${donations.length + staticStars.length} LIGHTS`;
-  requestAnimationFrame(animateSky);
+  animationFrame = requestAnimationFrame(animateSky);
 }
 
 new ResizeObserver(resizeSky).observe(canvas);
 resizeSky();
-requestAnimationFrame(animateSky);
 syncSummary();
+
+function resizeStarDensity() {
+  const target = window.matchMedia('(max-width: 760px)').matches ? motionConfig.starCountMobile : motionConfig.starCountDesktop;
+  staticStars.length = target;
+  while (staticStars.length < target) staticStars.push({ x: Math.random(), y: Math.random() * .72, r: Math.random() * 1.05 + .2, alpha: Math.random() * .55 + .14, drift: Math.random() * .7 + .15, layer: Math.random() });
+}
+
+function startSky() {
+  if (!realContext || animationFrame || document.hidden) return;
+  resizeStarDensity();
+  nextMeteorAt = performance.now() + 1200 + Math.random() * 2200;
+  animationFrame = requestAnimationFrame(animateSky);
+}
+
+function stopSky() {
+  if (!animationFrame) return;
+  cancelAnimationFrame(animationFrame);
+  animationFrame = 0;
+}
+
+window.addEventListener('donationmodal:open', startSky);
+window.addEventListener('donationmodal:close', stopSky);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopSky();
+  else if (modalRoot.classList.contains('open')) startSky();
+});
+const skyVisibility = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting && modalRoot.classList.contains('open')) startSky();
+  else stopSky();
+}, { threshold: .01 });
+skyVisibility.observe(modalRoot);
 
 sharedSky.subscribe((star) => addOrReplaceDonation(star, { pulse: true }));
 sharedSky.loadLatest()
