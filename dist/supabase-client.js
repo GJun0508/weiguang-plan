@@ -7,9 +7,9 @@
   window.weiguangSupabase = ready
     ? sdk.createClient(config.url, config.publishableKey, {
         auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: true,
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
         },
       })
     : null;

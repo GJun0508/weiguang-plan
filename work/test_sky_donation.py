@@ -38,6 +38,13 @@ class SkyDonationDesignTests(unittest.TestCase):
         self.assertIn("'#ffffff'", script)
         self.assertIn("context.rotate(Math.PI / 4)", script)
 
+    def test_night_sky_has_ambient_meteor_animation(self):
+        script = (ROOT / "donation.js").read_text()
+        self.assertIn("const meteors = []", script)
+        self.assertIn("function spawnMeteor", script)
+        self.assertIn("function drawMeteor", script)
+        self.assertIn("nextMeteorAt", script)
+
 
 if __name__ == "__main__":
     unittest.main()
