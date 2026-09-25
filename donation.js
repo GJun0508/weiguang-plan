@@ -126,6 +126,8 @@ const staticStars = Array.from({ length: 115 }, () => ({
   r: Math.random() * 1.05 + 0.2,
   alpha: Math.random() * 0.55 + 0.14,
 }));
+const meteors = [];
+let nextMeteorAt = 0;
 let canvasWidth = 1;
 let canvasHeight = 1;
 let launch = null;
@@ -163,6 +165,41 @@ function drawDiamondStar(x, y, radius, focused = false) {
   context.shadowColor = '#ffffff';
   context.fillStyle = '#ffffff';
   context.fillRect(-radius, -radius, radius * 2, radius * 2);
+  context.restore();
+}
+
+function spawnMeteor(time) {
+  meteors.push({
+    startedAt: time,
+    duration: 850 + Math.random() * 750,
+    x: canvasWidth * (0.72 + Math.random() * 0.42),
+    y: canvasHeight * (0.04 + Math.random() * 0.46),
+    length: 70 + Math.random() * 115,
+  });
+  nextMeteorAt = time + 2600 + Math.random() * 5200;
+}
+
+function drawMeteor(meteor, time) {
+  const progress = (time - meteor.startedAt) / meteor.duration;
+  const travel = Math.min(Math.max(progress, 0), 1.12);
+  const x = meteor.x - meteor.length * travel;
+  const y = meteor.y + meteor.length * 0.44 * travel;
+  const tailX = x + meteor.length * 0.9;
+  const tailY = y - meteor.length * 0.4;
+  const fade = Math.sin(Math.min(progress, 1) * Math.PI);
+  const gradient = context.createLinearGradient(tailX, tailY, x, y);
+  gradient.addColorStop(0, 'rgba(255,255,255,0)');
+  gradient.addColorStop(0.72, `rgba(211,230,255,${0.25 * fade})`);
+  gradient.addColorStop(1, `rgba(255,255,255,${0.95 * fade})`);
+  context.save();
+  context.strokeStyle = gradient;
+  context.lineWidth = 1.5 + fade;
+  context.shadowBlur = 12;
+  context.shadowColor = `rgba(220,238,255,${0.8 * fade})`;
+  context.beginPath();
+  context.moveTo(tailX, tailY);
+  context.lineTo(x, y);
+  context.stroke();
   context.restore();
 }
 
@@ -252,6 +289,12 @@ $('.save-receipt').addEventListener('click', () => window.showToast('测试捐�
 
 function animateSky(time) {
   context.clearRect(0, 0, canvasWidth, canvasHeight);
+  if (time >= nextMeteorAt) spawnMeteor(time);
+  for (let index = meteors.length - 1; index >= 0; index -= 1) {
+    const meteor = meteors[index];
+    drawMeteor(meteor, time);
+    if (time - meteor.startedAt > meteor.duration) meteors.splice(index, 1);
+  }
   staticStars.forEach((star, index) => {
     const alpha = star.alpha + 0.12 * Math.sin(time / 850 + index * 0.7);
     drawStar(star.x * canvasWidth, star.y * canvasHeight, star.r, `rgba(246,248,239,${alpha})`);
