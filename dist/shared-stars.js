@@ -73,9 +73,12 @@
     if (!activeClient) return () => {};
 
     const retryDelay = Number.isFinite(options.retryDelay) ? options.retryDelay : 2500;
+    const pollInterval = Number.isFinite(options.pollInterval) ? options.pollInterval : 3000;
     const retryableStatuses = new Set(['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED']);
     let channel = null;
     let retryTimer = null;
+    let pollTimer = null;
+    let resyncInFlight = null;
     let disposed = false;
 
     const report = (status, error) => {
@@ -87,9 +90,15 @@
     };
 
     const resync = () => {
-      loadLatest()
-        .then((stars) => stars.forEach(onInsert))
-        .catch((error) => report('SYNC_ERROR', error));
+      if (resyncInFlight) return resyncInFlight;
+      resyncInFlight = loadLatest()
+        .then((stars) => {
+          if (typeof options.onSnapshot === 'function') options.onSnapshot(stars);
+          else stars.forEach(onInsert);
+        })
+        .catch((error) => report('SYNC_ERROR', error))
+        .finally(() => { resyncInFlight = null; });
+      return resyncInFlight;
     };
 
     const scheduleReconnect = () => {
@@ -129,10 +138,14 @@
     };
 
     connect();
+    if (pollInterval > 0 && typeof setInterval === 'function') {
+      pollTimer = setInterval(resync, pollInterval);
+    }
 
     return () => {
       disposed = true;
       if (retryTimer) clearTimeout(retryTimer);
+      if (pollTimer) clearInterval(pollTimer);
       if (channel) activeClient.removeChannel(channel);
       channel = null;
     };

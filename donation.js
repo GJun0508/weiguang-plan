@@ -423,8 +423,5 @@ sharedSky.subscribe(
       console.warn('Shared sky is reconnecting', status, error || '');
     }
   },
-  { onDelete: removeDonation },
+  { onDelete: removeDonation, onSnapshot: replaceDonations },
 );
-sharedSky.loadLatest()
-  .then((stars) => replaceDonations(stars))
-  .catch((error) => console.warn('Unable to load the shared sky', error));

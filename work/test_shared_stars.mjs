@@ -11,7 +11,14 @@ function loadAdapter(config, supabase) {
     WEIGUANG_SUPABASE_CONFIG: config,
     supabase,
   };
-  vm.runInNewContext(readFileSync(adapterPath, 'utf8'), { window, console, setTimeout, clearTimeout });
+  vm.runInNewContext(readFileSync(adapterPath, 'utf8'), {
+    window,
+    console,
+    setTimeout,
+    clearTimeout,
+    setInterval,
+    clearInterval,
+  });
   return window.sharedDonationStars;
 }
 
@@ -127,7 +134,7 @@ test('configured adapter maps reads, writes, and realtime inserts', async () => 
   assert.equal(published.id, row.id);
 
   let received;
-  const unsubscribe = adapter.subscribe((star) => { received = star; });
+  const unsubscribe = adapter.subscribe((star) => { received = star; }, () => {}, { pollInterval: 0 });
   assert.equal(calls.filter.event, 'INSERT');
   assert.equal(calls.filter.schema, 'public');
   assert.equal(calls.filter.table, 'donation_stars');
@@ -162,7 +169,7 @@ test('realtime subscription reports status and reconnects after a channel failur
     { createClient() { return client; } },
   );
 
-  const unsubscribe = adapter.subscribe(() => {}, (status) => statuses.push(status), { retryDelay: 5 });
+  const unsubscribe = adapter.subscribe(() => {}, (status) => statuses.push(status), { retryDelay: 5, pollInterval: 0 });
   subscriptions[0]('CHANNEL_ERROR', new Error('offline'));
   await new Promise((resolve) => setTimeout(resolve, 20));
 
@@ -196,10 +203,52 @@ test('realtime subscription forwards delete events by server id', () => {
   );
 
   const unsubscribe = adapter.subscribe(() => {}, () => {}, {
+    pollInterval: 0,
     onDelete(star) { deleted = star; },
   });
   handlers.DELETE({ old: { id: 'server-id' } });
 
   assert.equal(deleted.id, 'server-id');
   unsubscribe();
+});
+
+test('polling resyncs the shared snapshot when realtime is unavailable', async () => {
+  let snapshots = 0;
+  const client = {
+    from() {
+      return {
+        select() {
+          return {
+            order() {
+              return {
+                async limit() { return { data: [row], error: null }; },
+              };
+            },
+          };
+        },
+      };
+    },
+    channel() {
+      return {
+        on() { return this; },
+        subscribe() { return this; },
+      };
+    },
+    removeChannel() {},
+  };
+  const adapter = loadAdapter(
+    { url: 'https://example.supabase.co', publishableKey: 'sb_publishable_example' },
+    { createClient() { return client; } },
+  );
+
+  const unsubscribe = adapter.subscribe(() => {}, () => {}, {
+    pollInterval: 5,
+    onSnapshot(stars) {
+      if (stars[0]?.id === row.id) snapshots += 1;
+    },
+  });
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  unsubscribe();
+
+  assert.ok(snapshots >= 1);
 });
