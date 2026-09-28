@@ -112,6 +112,15 @@
           schema: 'public',
           table: 'donation_stars',
         }, (payload) => onInsert(toSharedStar(payload.new)))
+        .on('postgres_changes', {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'donation_stars',
+        }, (payload) => {
+          if (typeof options.onDelete === 'function' && payload.old?.id) {
+            options.onDelete({ id: payload.old.id });
+          }
+        })
         .subscribe((status, error) => {
           report(status, error);
           if (status === 'SUBSCRIBED') resync();
