@@ -405,7 +405,14 @@ const skyVisibility = new IntersectionObserver((entries) => {
 }, { threshold: .01 });
 skyVisibility.observe(modalRoot);
 
-sharedSky.subscribe((star) => addOrReplaceDonation(star, { pulse: true }));
+sharedSky.subscribe(
+  (star) => addOrReplaceDonation(star, { pulse: true }),
+  (status, error) => {
+    if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'SYNC_ERROR') {
+      console.warn('Shared sky is reconnecting', status, error || '');
+    }
+  },
+);
 sharedSky.loadLatest()
   .then((stars) => stars.forEach((star) => addOrReplaceDonation(star)))
   .catch((error) => console.warn('Unable to load the shared sky', error));

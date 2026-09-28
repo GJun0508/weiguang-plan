@@ -68,18 +68,65 @@
     return toSharedStar(data);
   }
 
-  function subscribe(onInsert) {
+  function subscribe(onInsert, onStatus = () => {}, options = {}) {
     const activeClient = getClient();
     if (!activeClient) return () => {};
-    const channel = activeClient
-      .channel('donation-stars')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'donation_stars',
-      }, (payload) => onInsert(toSharedStar(payload.new)))
-      .subscribe();
-    return () => activeClient.removeChannel(channel);
+
+    const retryDelay = Number.isFinite(options.retryDelay) ? options.retryDelay : 2500;
+    const retryableStatuses = new Set(['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED']);
+    let channel = null;
+    let retryTimer = null;
+    let disposed = false;
+
+    const report = (status, error) => {
+      try {
+        onStatus(status, error);
+      } catch (callbackError) {
+        console.warn('Shared sky status callback failed', callbackError);
+      }
+    };
+
+    const resync = () => {
+      loadLatest()
+        .then((stars) => stars.forEach(onInsert))
+        .catch((error) => report('SYNC_ERROR', error));
+    };
+
+    const scheduleReconnect = () => {
+      if (disposed || retryTimer) return;
+      retryTimer = setTimeout(() => {
+        retryTimer = null;
+        if (channel) activeClient.removeChannel(channel);
+        channel = null;
+        connect();
+      }, retryDelay);
+    };
+
+    const connect = () => {
+      if (disposed) return;
+      report('SUBSCRIBING');
+      channel = activeClient
+        .channel('donation-stars')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'donation_stars',
+        }, (payload) => onInsert(toSharedStar(payload.new)))
+        .subscribe((status, error) => {
+          report(status, error);
+          if (status === 'SUBSCRIBED') resync();
+          if (retryableStatuses.has(status)) scheduleReconnect();
+        });
+    };
+
+    connect();
+
+    return () => {
+      disposed = true;
+      if (retryTimer) clearTimeout(retryTimer);
+      if (channel) activeClient.removeChannel(channel);
+      channel = null;
+    };
   }
 
   window.sharedDonationStars = {

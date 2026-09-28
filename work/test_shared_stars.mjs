@@ -11,7 +11,7 @@ function loadAdapter(config, supabase) {
     WEIGUANG_SUPABASE_CONFIG: config,
     supabase,
   };
-  vm.runInNewContext(readFileSync(adapterPath, 'utf8'), { window, console });
+  vm.runInNewContext(readFileSync(adapterPath, 'utf8'), { window, console, setTimeout, clearTimeout });
   return window.sharedDonationStars;
 }
 
@@ -133,4 +133,40 @@ test('configured adapter maps reads, writes, and realtime inserts', async () => 
   assert.equal(received.clientId, row.client_id);
   unsubscribe();
   assert.equal(calls.removed, channel);
+});
+
+test('realtime subscription reports status and reconnects after a channel failure', async () => {
+  const statuses = [];
+  const channels = [];
+  const subscriptions = [];
+  let removed = 0;
+  const client = {
+    channel(name) {
+      assert.equal(name, 'donation-stars');
+      const channel = {
+        on() { return this; },
+        subscribe(callback) {
+          subscriptions.push(callback);
+          return this;
+        },
+      };
+      channels.push(channel);
+      return channel;
+    },
+    removeChannel() { removed += 1; },
+  };
+  const adapter = loadAdapter(
+    { url: 'https://example.supabase.co', publishableKey: 'sb_publishable_example' },
+    { createClient() { return client; } },
+  );
+
+  const unsubscribe = adapter.subscribe(() => {}, (status) => statuses.push(status), { retryDelay: 5 });
+  subscriptions[0]('CHANNEL_ERROR', new Error('offline'));
+  await new Promise((resolve) => setTimeout(resolve, 20));
+
+  assert.deepEqual(statuses, ['SUBSCRIBING', 'CHANNEL_ERROR', 'SUBSCRIBING']);
+  assert.equal(channels.length, 2);
+  assert.equal(removed, 1);
+  unsubscribe();
+  assert.equal(removed, 2);
 });
