@@ -46,8 +46,10 @@ test('configured adapter maps reads, writes, and realtime inserts', async () => 
   const channel = {
     on(type, filter, handler) {
       assert.equal(type, 'postgres_changes');
-      calls.filter = filter;
-      realtimeHandler = handler;
+      if (filter.event === 'INSERT') {
+        calls.filter = filter;
+        realtimeHandler = handler;
+      }
       return this;
     },
     subscribe() { return this; },
@@ -169,4 +171,35 @@ test('realtime subscription reports status and reconnects after a channel failur
   assert.equal(removed, 1);
   unsubscribe();
   assert.equal(removed, 2);
+});
+
+test('realtime subscription forwards delete events by server id', () => {
+  let deleted;
+  const handlers = {};
+  const channel = {
+    on(type, filter, handler) {
+      handlers[filter.event] = handler;
+      return this;
+    },
+    subscribe() { return this; },
+  };
+  const adapter = loadAdapter(
+    { url: 'https://example.supabase.co', publishableKey: 'sb_publishable_example' },
+    {
+      createClient() {
+        return {
+          channel() { return channel; },
+          removeChannel() {},
+        };
+      },
+    },
+  );
+
+  const unsubscribe = adapter.subscribe(() => {}, () => {}, {
+    onDelete(star) { deleted = star; },
+  });
+  handlers.DELETE({ old: { id: 'server-id' } });
+
+  assert.equal(deleted.id, 'server-id');
+  unsubscribe();
 });

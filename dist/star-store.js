@@ -21,10 +21,26 @@
       return { isNew: !previous, star: merged };
     }
 
+    function remove(star) {
+      const key = keyFor(star);
+      const matchingKeys = Array.from(stars.entries())
+        .filter(([storedKey, storedStar]) => storedKey === key || storedStar.id === star.id)
+        .map(([storedKey]) => storedKey);
+      matchingKeys.forEach((storedKey) => stars.delete(storedKey));
+      return matchingKeys.length > 0;
+    }
+
+    function replaceAll(nextStars) {
+      stars.clear();
+      nextStars.forEach((star) => addOrReplace(star));
+    }
+
     initialStars.forEach((star) => addOrReplace(star));
 
     return {
       addOrReplace,
+      remove,
+      replaceAll,
       values: sortedValues,
     };
   };

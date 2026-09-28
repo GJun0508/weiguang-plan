@@ -42,10 +42,11 @@ class RealtimeSkyContractTests(unittest.TestCase):
         parser.feed((ROOT / "index.html").read_text())
         self.assertIn("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2", parser.sources)
         self.assertIn("supabase-config.js", parser.sources)
-        self.assertIn("shared-stars.js", parser.sources)
+        shared_source = next(source for source in parser.sources if source.startswith("shared-stars.js"))
+        donation_source = next(source for source in parser.sources if source.startswith("donation.js"))
         self.assertIn("star-store.js", parser.sources)
-        self.assertLess(parser.sources.index("star-store.js"), parser.sources.index("donation.js"))
-        self.assertLess(parser.sources.index("shared-stars.js"), parser.sources.index("donation.js"))
+        self.assertLess(parser.sources.index("star-store.js"), parser.sources.index(donation_source))
+        self.assertLess(parser.sources.index(shared_source), parser.sources.index(donation_source))
 
     def test_receipt_explains_shared_sky_without_claiming_real_payment(self):
         html = (ROOT / "index.html").read_text()

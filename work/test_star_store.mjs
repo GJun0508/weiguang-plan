@@ -61,3 +61,14 @@ test('store keeps only the newest configured number of stars', () => {
   assert.equal(store.values()[0].clientId, stars[2].clientId);
   assert.equal(store.values()[2].clientId, stars[4].clientId);
 });
+
+test('store removes a server star by id and replaces stale local data', () => {
+  const first = star('11111111-1111-4111-8111-111111111111', '2026-09-24T00:00:01.000Z', { id: 'server-one' });
+  const second = star('22222222-2222-4222-8222-222222222222', '2026-09-24T00:00:02.000Z', { id: 'server-two' });
+  const store = createStore([first, second]);
+
+  assert.equal(store.remove({ id: 'server-one' }), true);
+  assert.equal(store.values().length, 1);
+  store.replaceAll([second]);
+  assert.equal(JSON.stringify(store.values()), JSON.stringify([second]));
+});

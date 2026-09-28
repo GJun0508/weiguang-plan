@@ -28,6 +28,17 @@ function addOrReplaceDonation(donation, { pulse = false } = {}) {
   return result;
 }
 
+function removeDonation(donation) {
+  if (!donationStore.remove(donation)) return;
+  arrivalPulseUntil.delete(donationKey(donation));
+  writeDonations(visibleDonations());
+}
+
+function replaceDonations(donations) {
+  donationStore.replaceAll(donations);
+  writeDonations(visibleDonations());
+}
+
 function createClientId() {
   if (crypto.randomUUID) return crypto.randomUUID();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (token) => {
@@ -412,7 +423,8 @@ sharedSky.subscribe(
       console.warn('Shared sky is reconnecting', status, error || '');
     }
   },
+  { onDelete: removeDonation },
 );
 sharedSky.loadLatest()
-  .then((stars) => stars.forEach((star) => addOrReplaceDonation(star)))
+  .then((stars) => replaceDonations(stars))
   .catch((error) => console.warn('Unable to load the shared sky', error));
