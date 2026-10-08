@@ -1,27 +1,22 @@
-# 微光计划 / WEIGUANG
+# 微光计划 / 共和小学支教行动
 
-原生 HTML、CSS、JavaScript 的公益内容网站，使用 GitHub Pages 托管前端，Supabase 提供动态内容和共享星空能力。
+原生 HTML、CSS、JavaScript 的活动专题网站。首页聚焦广东省惠州市惠东县白盆珠镇共和村共和小学的支教筹备，介绍特色课程、家庭走访、物资捐赠与联系支持方式。
 
-## 本地运行
+## 内容与来源
+
+- 学校地点和六个年级人数来自活动团队。当前合计 93 人（男 47 人、女 46 人）；正式参与人数以校方确认为准。
+- 白盆珠镇位于惠东东部山区，参考[白盆珠镇简介](https://www.zgcounty.com/wap/news/63241.html)。
+- 共和小学作为当地乡村学校的报道，参考[惠州日报 2025 年报道](https://www.hznews.com/sz/202509/t20250901_1624921.shtml)。该报道提到过四至六年级布局调整的计划，因此网页没有把年级人数表述成官方现行学籍数据。
+- `assets/service-china-proof-2025.pdf` 是用户提供的广东碧桂园学校 2025 年“服务中国”活动联系工作证明，作为相关服务背景材料展示；它不是共和小学本次活动或募捐的批准文件。
+
+## 筹款状态
+
+正式收款渠道尚未确定。首页提供邮件和电话联系，并保留原站测试捐赠系统及共享星空供演示；演示会生成测试订单，但不会真实收款或扣款。原系统的项目选项与收款逻辑未修改。页面上的课程方向与物资计划均为筹备内容，待校方确认后更新。
+
+## 本地预览
 
 ```bash
 python3 -m http.server 4176
 ```
 
-然后打开 `http://localhost:4176/`。浏览器端只需要 `supabase-config.js` 中的 URL 和 publishable/anon key；不要提交 service role key、数据库密码或支付密钥。
-
-## Supabase 配置顺序
-
-1. 保留既有 `supabase/donation_stars.sql`，不要重复修改捐款表。
-2. 在 SQL Editor 执行 `supabase/migrations/20260924_dynamic_content.sql`。
-3. 将 `.env.example` 中的公开配置对应到 `supabase-config.js`。这两个公开值可以出现在浏览器代码中。
-
-迁移会创建 `projects`、`project_updates`、`site_stats` 和 `ledger_entries`，并为每张表启用 RLS。公开内容仅能读取已发布记录。早期版本若已经创建账号表，可额外执行 `supabase/migrations/20260924_remove_user_system.sql` 清理旧用户表。
-
-## 发布内容
-
-项目详情使用 `/project.html?slug=<项目 slug>`。未发布内容不会出现在公开页面；内容维护通过 Supabase SQL Editor 完成。
-
-## 捐款系统边界
-
-当前捐款仍是独立的测试系统：不会调用真实微信、支付宝或银行卡支付，不会生成用户捐款历史或订单中心。`donation.js`、`donation.css`、`shared-stars.js`、`star-store.js` 和 `donation_stars` 表保持独立。
+打开 `http://localhost:4176/`。根目录是 GitHub Pages 源文件；`dist/` 同步保存了用于静态托管的页面与证明材料。
